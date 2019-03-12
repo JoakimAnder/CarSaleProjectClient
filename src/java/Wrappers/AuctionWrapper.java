@@ -93,5 +93,12 @@ public class AuctionWrapper implements Serializable {
     public void setBids(List<BidWrapper> bids) {
         this.bids = bids;
     }
+
+    @Override
+    public String toString() {
+        return "AuctionWrapper{" + "id=" + id + ", timeOfEnd=" + timeOfEnd + ", reservationPrice=" + reservationPrice + ", valuedPrice=" + valuedPrice + ", item=" + item + ", bids=" + bids + '}';
+    }
+
+    
     
 }

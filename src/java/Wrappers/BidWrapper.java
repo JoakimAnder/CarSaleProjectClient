@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 
 public class BidWrapper implements Serializable {
     
+    private Long id;
     private int amount;
     private String timeOfBid;
-    private Long id;
     private Long auction;
     private Long bidder;
 
@@ -80,4 +80,10 @@ public class BidWrapper implements Serializable {
     public void setBidder(Long bidder) {
         this.bidder = bidder;
     }
+
+    @Override
+    public String toString() {
+        return "BidWrapper{" + "id=" + id + ", amount=" + amount + ", timeOfBid=" + timeOfBid + ", auction=" + auction + ", bidder=" + bidder + '}';
+    }
+    
 }

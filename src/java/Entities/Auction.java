@@ -163,6 +163,6 @@ public class Auction implements Serializable {
 
     @Override
     public String toString() {
-        return "Auction{" + "id=" + id + ", timeOfEnd=" + timeOfEnd + ", reservationPrice=" + reservationPrice + ", valuedPrice=" + valuedPrice + ", item=" + item + '}';
+        return "Auction{" + "id=" + id + ", timeOfEnd=" + timeOfEnd + ", reservationPrice=" + reservationPrice + ", valuedPrice=" + valuedPrice + ", item=" + (item == null ? null : item.getId()) + '}';
     }
 }

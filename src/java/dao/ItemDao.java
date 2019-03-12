@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.ws.rs.client.*;
-import javax.ws.rs.core.MediaType;
 
 public class ItemDao {
 
@@ -33,9 +32,11 @@ public class ItemDao {
     private Car unwrap(CarWrapper cw) {
         for (Car uc : unwrappedCars) {
             if (uc.getId().equals(cw.getId())) {
+//                System.out.println("Found: "+uc);
                 return uc;
             }
         }
+//        System.out.println("Adding: "+cw);
 
         Car c = new Car();
         c.setId(cw.getId());
@@ -55,9 +56,11 @@ public class ItemDao {
     private Bidder unwrap(BidderWrapper bw) {
         for (Bidder ub : unwrappedBidders) {
             if (ub.getId().equals(bw.getId())) {
+//                System.out.println("Found: "+ub);
                 return ub;
             }
         }
+//        System.out.println("Adding: "+bw);
 
         Bidder b = new Bidder();
         b.setId(bw.getId());
@@ -65,20 +68,24 @@ public class ItemDao {
         b.setName(bw.getName());
         b.setPhone(bw.getPhone());
         
-        b.setBids(bw.getBids().stream()
-                .map(bidW -> unwrap(bidW))
-                .collect(Collectors.toList()));
-
         unwrappedBidders.add(b);
+        
+        if (!bw.getBids().isEmpty())
+            b.setBids(bw.getBids().stream()
+                    .map(bidW -> unwrap(bidW))
+                    .collect(Collectors.toList()));
+        
         return b;
     }
 
     private Bid unwrap(BidWrapper bw) {
         for (Bid ub : unwrappedBids) {
             if (ub.getId().equals(bw.getId())) {
+//                System.out.println("Found: "+ub);
                 return ub;
             }
         }
+//        System.out.println("Adding:"+bw);
 
         Bid bid = new Bid();
         bid.setAmount(bw.getAmount());
@@ -91,7 +98,7 @@ public class ItemDao {
         unwrappedBids.add(bid);
 
         bid.setAuction(unwrap(target.path("auction/id/" + bw.getAuction()).request().get(AuctionWrapper.class)));
-        bid.setBidder(unwrap(target.path("bidder/" + bw.getBidder()).request().get(BidderWrapper.class)));
+        bid.setBidder(unwrap(target.path("bidder/id/" + bw.getBidder()).request().get(BidderWrapper.class)));
 
         return bid;
     }
@@ -99,50 +106,57 @@ public class ItemDao {
     private Auction unwrap(AuctionWrapper aw) {
         for (Auction ua : unwrappedAuctions) {
             if (ua.getId().equals(aw.getId())) {
+//                System.out.println("Found: "+ua);
                 return ua;
             }
         }
+//        System.out.println("Adding: "+aw);
 
         Auction a = new Auction();
         a.setId(aw.getId());
         a.setReservationPrice(aw.getReservationPrice());
+        
         if (!aw.getTimeOfEnd().isEmpty()) {
             a.setTimeOfEnd(LocalDateTime.parse(aw.getTimeOfEnd()));
         }
         a.setValuedPrice(aw.getValuedPrice());
-        a.setBids(aw.getBids().stream()
-                .map(b -> unwrap(b))
-                .collect(Collectors.toList()));
-        a.setItem(unwrap(aw.getItem()));
-
+        
         unwrappedAuctions.add(a);
+        
+        if (aw.getItem() != null)
+            a.setItem(unwrap(aw.getItem()));
+        
+        if (!aw.getBids().isEmpty())
+            a.setBids(aw.getBids().stream()
+                    .map(b -> unwrap(b))
+                    .collect(Collectors.toList()));
+
         return a;
     }
 
     public boolean createCar(Car car) {
         return target.path("car")
                 .request()
-                .post(Entity.json(car))
+                .post(Entity.json(CarWrapper.wrap(car)))
                 .getStatus() == 200;
     }
 
     public boolean createAuction(Auction auction) {
         return target.path("auction")
                 .request()
-                .post(Entity.json(auction))
+                .post(Entity.json(AuctionWrapper.wrap(auction)))
                 .getStatus() == 200;
     }
 
     public boolean createBidder(Bidder bidder) {
         return target.path("bidder")
                 .request()
-                .post(Entity.json(bidder))
+                .post(Entity.json(BidderWrapper.wrap(bidder)))
                 .getStatus() == 200;
     }
 
     public Auction getAuction(Long id) {
         Auction a = unwrap(target.path("auction/id/" + id).request().get(AuctionWrapper.class));
-        
         clearUnwrapped();
         return a;
     }
@@ -227,10 +241,13 @@ public class ItemDao {
     public boolean bid(Bidder bidder, Auction auction, int bid) {
         return target.path("auction/bid/" + auction.getId() + "/" + bid)
                 .request()
-                .put(Entity.json(bidder), Boolean.class);
+                .put(Entity.json(BidderWrapper.wrap(bidder)), Boolean.class);
     }
 
     public List<Bidder> getBiddersByName(String name) {
+        if(name == null || name.isEmpty())
+            return new ArrayList<>();
+        
         List<Bidder> list = Arrays.asList(target.path("bidder/" + name).request().get(BidderWrapper[].class)).stream()
                 .map(w -> unwrap(w))
                 .collect(Collectors.toList());
@@ -243,7 +260,7 @@ public class ItemDao {
                 .map(w -> unwrap(w))
                 .collect(Collectors.toList());
         clearUnwrapped();
-        return list; 
+        return list;
     }
 
     public List<Car> getCarsWithoutAuctions() {

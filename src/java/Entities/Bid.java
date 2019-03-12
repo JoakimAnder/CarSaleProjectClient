@@ -93,7 +93,7 @@ public class Bid implements Serializable {
 
     @Override
     public String toString() {
-        return "Bid{" + "amount=" + amount + ", timeOfBid=" + timeOfBid + ", id=" + id + '}';
+        return "Bid{" + "id=" + id +", amount=" + amount + ", timeOfBid=" + timeOfBid +  '}';
     }
     
     

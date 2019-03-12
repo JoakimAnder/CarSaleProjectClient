@@ -77,7 +77,9 @@ public class BidderWrapper implements Serializable {
     public void setBids(List<BidWrapper> bids) {
         this.bids = bids;
     }
- 
-    
-    
+
+    @Override
+    public String toString() {
+        return "BidderWrapper{" + "id=" + id + ", name=" + name + ", phone=" + phone + ", address=" + address + ", bids=" + bids + '}';
+    }
 }

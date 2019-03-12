@@ -97,4 +97,9 @@ public class CarWrapper implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "CarWrapper{" + "id=" + id +", manufacturer=" + manufacturer + ", model=" + model + ", newPrice=" + newPrice + ", manufactureYear=" + manufactureYear + ", condition=" + condition + ", auction=" + auction + '}';
+    }
 }
